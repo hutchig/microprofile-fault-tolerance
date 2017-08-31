@@ -25,6 +25,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import javax.enterprise.util.Nonbinding;
 import javax.interceptor.InterceptorBinding;
 
 /**
@@ -33,7 +34,7 @@ import javax.interceptor.InterceptorBinding;
  * <ol>
  * <li>If value is specified, use {@link FallbackHandler#handle(ExecutionContext)} on the specified handler to execute the fallback.</li>
  * <li>If fallbackMethod is specified, invoke the method specified by the fallbackMethod on the same class.</li>
- * <li>If both are specified, the {@link javax.enterprise.inject.spi.DeploymentException} must be thrown.</li>
+ * <li>If both are specified, the {@link org.eclipse.microprofile.faulttolerance.exceptions.FaultToleranceDefinitionException} must be thrown.</li>
  * </ol>
  * 
  * @author <a href="mailto:emijiang@uk.ibm.com">Emily Jiang</a>
@@ -41,38 +42,40 @@ import javax.interceptor.InterceptorBinding;
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.METHOD, ElementType.TYPE })
+@Target({ ElementType.METHOD })
 @Inherited
 @InterceptorBinding
 public @interface Fallback {
 
     /**
      * Create a default class so the value is not required to be set all the time.
-     * @param <T>
-     * @param <T>
      */
-    class  DEFAULT<T> implements FallbackHandler<T>{
+    class DEFAULT implements FallbackHandler<Void>{
         @Override
-        public T handle(ExecutionContext context) {
+        public Void handle(ExecutionContext context) {
             return null;
         }
     }
     /**
      * Specify the fallback class to be used. An new instance of the fallback class
      * is returned. The instance is unmanaged. The type parameter of the fallback class must be assignable to the
-     * return type of the annotated method. Otherwise, the {@link javax.enterprise.inject.spi.DeploymentException} must be thrown.
+     * return type of the annotated method. 
+     * Otherwise, {@link org.eclipse.microprofile.faulttolerance.exceptions.FaultToleranceDefinitionException} occurs.
      * 
      * @return the fallback class
      */
-    @SuppressWarnings("rawtypes")
-    Class<? extends FallbackHandler> value() default DEFAULT.class;
+    @Nonbinding
+    Class<? extends FallbackHandler<?>> value() default DEFAULT.class;
+    
     /**
     * Specify the method name to be fallbacked to. This method belongs
     * to the same class as the method to fallback.
     * The method must have the exactly same arguments as the method being annotated.
     * The method return type must be assignable to the return type of the method the fallback is for. 
-    * Otherwise, the {@link javax.enterprise.inject.spi.DeploymentException} must be thrown.
+    * Otherwise, {@link org.eclipse.microprofile.faulttolerance.exceptions.FaultToleranceDefinitionException} must be thrown.
+    * 
     * @return the local method to fallback to
     */
+    @Nonbinding
     String fallbackMethod() default "";
 }

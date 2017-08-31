@@ -17,36 +17,46 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package org.eclipse.microprofile.fault.tolerance.tck.illegalConfig;
-
+package org.eclipse.microprofile.fault.tolerance.tck.config.clientserver;
 
 import javax.enterprise.context.RequestScoped;
 
-import org.eclipse.microprofile.faulttolerance.Fallback;
 import org.eclipse.microprofile.faulttolerance.Retry;
 
 /**
- * A client to demonstrate the fallback after doing retries
+ * A client to support Fault Tolerance Configuration tests.
  * 
- * @author <a href="mailto:neil_young@uk.ibm.com">Neil Young</a>
+ * @author <a href="mailto:neilyoung@uk.ibm.com">Neil Young</a>
  *
  */
 @RequestScoped
-public class FallbackMethodClient {
-
+@Retry(maxRetries = 90, maxDuration= 3000)
+public class ConfigClassLevelMaxDurationClient {
+ 
+    private int counterForInvokingWritingService = 0;
+    
     /**
-     * Retry 5 times and then fallback
+     * Max retries is configured to 90 but the max duration is 3 seconds with a default 
+     * durationUnit of milliseconds.
+     *  
+     * Once the duration is reached, no more retries should be performed.
      */
-    @Retry(maxRetries = 4)
-    @Fallback(fallbackMethod = "fallbackForServiceB")
-    public Integer serviceB() {
-        return 42;
-    }
+    public void serviceA() {
+        writingService();
+    }    
 
-    /**
-     * Incompatible signature, only one parameter
-     */
-    public String fallbackForServiceB() {
-        return "fallback method for serviceB";
+    private void writingService() {
+        counterForInvokingWritingService ++;
+        try {
+            Thread.sleep(100);
+            throw new RuntimeException("WritingService failed");
+        } 
+        catch (InterruptedException e) {
+            e.printStackTrace();
+        }    
     }
+    
+    public int getRetryCountForWritingService() {
+        return counterForInvokingWritingService;
+    }    
 }

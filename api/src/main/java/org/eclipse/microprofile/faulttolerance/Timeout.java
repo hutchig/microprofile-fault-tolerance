@@ -26,6 +26,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.time.temporal.ChronoUnit;
 
+import javax.enterprise.util.Nonbinding;
 import javax.interceptor.InterceptorBinding;
 
 /**
@@ -41,15 +42,18 @@ import javax.interceptor.InterceptorBinding;
 public @interface Timeout {
 
     /**
-     *
+     * The timeout value. The value must be greater than or equal to 0. 0 means no timeout configured.
+     * Otherwise, {@link org.eclipse.microprofile.faulttolerance.exceptions.FaultToleranceDefinitionException} occurs.
      * @return the timeout value
      */
+    @Nonbinding
     long value() default 1000;
 
     /**
      *
      * @return the timeout unit
      */
+    @Nonbinding
     ChronoUnit unit() default ChronoUnit.MILLIS;
 
 }

@@ -26,11 +26,13 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.time.temporal.ChronoUnit;
 
+import javax.enterprise.util.Nonbinding;
 import javax.interceptor.InterceptorBinding;
 
 /**
  * The Retry annotation to define the number of the retries and the fallback method on reaching the
- * retry counts.
+ * retry counts. Any invalid config value causes 
+ * {@link org.eclipse.microprofile.faulttolerance.exceptions.FaultToleranceDefinitionException}.
  * @author <a href="mailto:emijiang@uk.ibm.com">Emily Jiang</a>
  * @author John Ament
  */
@@ -42,46 +44,54 @@ import javax.interceptor.InterceptorBinding;
 public @interface Retry {
 
     /**
-     * @return The max number of retries. -1 means retry forever. If less than -1, an IllegalArgumentException will be thrown.
+     * @return The max number of retries. -1 means retry forever. The value must be greater than or equal to -1.
      *
      */
+    @Nonbinding
     int maxRetries() default 3;
 
     /**
-     * The delay between retries. Defaults to 0.
+     * The delay between retries. Defaults to 0. The value must be greater than or equal to 0.
      * @return the delay time
      */
+    @Nonbinding
     long delay() default 0;
 
     /**
      *
      * @return the delay unit
      */
-
+    @Nonbinding
     ChronoUnit delayUnit() default ChronoUnit.MILLIS;
 
     /**
+     * The max duration. The value must be greater than the delay if set. 0 means not set.
      * @return the maximum duration to perform retries for.
      */
+    @Nonbinding
     long maxDuration() default 2000;
 
     /**
      *
      * @return the duration unit
      */
+    @Nonbinding
     ChronoUnit durationUnit() default ChronoUnit.MILLIS;
 
     /**
-     *
+     * Set the jitter to randomly vary retry delays for. The value must be greater than or equals to 0. 
+     * 0 means not set.
      * @return the jitter that randomly vary retry delays by. e.g. a jitter of 200 milliseconds
      * will randomly add between -200 and 200 milliseconds to each retry delay.
      */
+    @Nonbinding
     long jitter() default 200;
 
     /**
      *
      * @return the jitter delay unit.
      */
+    @Nonbinding
     ChronoUnit jitterDelayUnit() default ChronoUnit.MILLIS;
 
 
@@ -89,12 +99,14 @@ public @interface Retry {
      *
      * @return Specify the failure to retry on
      */
+    @Nonbinding
     Class<? extends Throwable>[] retryOn() default { Exception.class };
 
     /**
      *
      * @return Specify the failure to abort on
      */
+    @Nonbinding
     Class<? extends Throwable>[] abortOn() default {};
 
 }
