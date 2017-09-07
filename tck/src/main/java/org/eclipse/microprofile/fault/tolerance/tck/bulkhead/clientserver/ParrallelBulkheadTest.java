@@ -56,9 +56,9 @@ public class ParrallelBulkheadTest implements Callable<Future> {
      * @param target
      *            the backend bulkheaded test class
      */
-    public ParrallelBulkheadTest(BulkheadTestBackend target) {
+    public ParrallelBulkheadTest(BulkheadTestBackend target, TestData td) {
         this.target = target;
-        this.action = new Checker(1000);
+        this.action = new Checker(1000, td);
     }
 
     @Override
